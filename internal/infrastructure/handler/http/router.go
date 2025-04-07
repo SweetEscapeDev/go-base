@@ -3,6 +3,7 @@ package http
 import (
 	"go-base/config"
 	"go-base/internal/infrastructure/handler/http/routes"
+	"go-base/internal/infrastructure/middleware"
 	"time"
 
 	ginzap "github.com/gin-contrib/zap"
@@ -19,11 +20,16 @@ func Init(c *config.Config) {
 	router.Use(cors)
 
 	logger, _ := zap.NewProduction()
-	router.Use(ginzap.Ginzap(logger, time.RFC3339, true))
+	defer logger.Sync()
+
+	router.Use(ginzap.GinzapWithConfig(logger, &ginzap.Config{
+		UTC:        true,
+		TimeFormat: time.RFC3339,
+		Context:    ginzap.Fn(middleware.GinzapExtraFields),
+	}))
 	router.Use(ginzap.RecoveryWithZap(logger, true))
 
 	routes.HealthRouteInit(router)
-	routes.WebhookbRouteInit(router)
 
 	router.Run(c.HTTPServerAddress)
 }

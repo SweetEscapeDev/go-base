@@ -21,9 +21,10 @@ This is a boilerplate for a Go SweetEscape project implementing Clean Architectu
 
 - [Go 1.24.0](https://golang.org/)
 - [Gin (HTTP framework)](https://gin-gonic.com/)
-- [GORM (ORM untuk database)](https://gorm.io/)
-- [Viper (Konfigurasi aplikasi)](https://github.com/spf13/viper)
+- [GORM (ORM)](https://gorm.io/)
+- [Viper (Application Configuration)](https://github.com/spf13/viper)
 - [Zap (Logging)](https://github.com/uber-go/zap)
+- [Air (Live Reload)](https://github.com/air-verse/air)
 
 ## Installation and Running the Application
 
@@ -46,9 +47,15 @@ This is a boilerplate for a Go SweetEscape project implementing Clean Architectu
    cp .env.example .env
    ```
 
-4. Run the application:
+4. Install air:
+
    ```sh
-   go run cmd/main.go
+   go install github.com/air-verse/air@latest
+   ```
+
+5. Run the application:
+   ```sh
+   air
    ```
 
 ## API Endpoint
