@@ -1,4 +1,4 @@
-package routes
+package route
 
 import (
 	"net/http"
@@ -6,28 +6,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type HealthRouteInterface interface {
+type HealthRoute interface {
 	RegisterRoutes()
 	HealthCheck(c *gin.Context)
 }
 
-type HealthRoute struct {
+type healthRouteImpl struct {
 	router *gin.Engine
 }
 
-func HealthRouteInit(router *gin.Engine) HealthRouteInterface {
-	route := &HealthRoute{
+func ProviderHealthRoute(router *gin.Engine) HealthRoute {
+	route := &healthRouteImpl{
 		router: router,
 	}
 	route.RegisterRoutes()
 	return route
 }
 
-func (r *HealthRoute) RegisterRoutes() {
+func (r *healthRouteImpl) RegisterRoutes() {
 	r.router.GET("/health", r.HealthCheck)
 }
 
-func (r *HealthRoute) HealthCheck(c *gin.Context) {
+func (r *healthRouteImpl) HealthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "UP",
 		"message": "Service is running",

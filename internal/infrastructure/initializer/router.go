@@ -1,17 +1,23 @@
-package http
+package initializer
 
 import (
 	"go-base/config"
-	"go-base/internal/infrastructure/handler/http/routes"
+
 	"go-base/internal/infrastructure/middleware"
 	"time"
 
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator"
 	"go.uber.org/zap"
 )
 
-func Init(c *config.Config) {
+func InitializeServer(cfg config.Config) {
+	InitializeMidtrans(cfg)
+	db := InitializeDatabase(cfg)
+	// InitializeGORMLog(db)
+
+	validate := validator.New()
 
 	router := gin.New()
 	router.Use(gin.Recovery())
@@ -29,7 +35,8 @@ func Init(c *config.Config) {
 	}))
 	router.Use(ginzap.RecoveryWithZap(logger, true))
 
-	routes.HealthRouteInit(router)
+	InitializeHealth(router)
+	InitializeExample(router, db, validate)
 
-	router.Run(c.HTTPServerAddress)
+	router.Run(cfg.HTTPServerAddress)
 }

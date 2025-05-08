@@ -2,14 +2,11 @@ package main
 
 import (
 	"go-base/config"
-	"go-base/internal/infrastructure/database"
-	"go-base/internal/infrastructure/handler/http"
+	"go-base/internal/infrastructure/initializer"
 )
 
 func main() {
-	c := config.Load()
+	cfg := config.Load()
 
-	database.Init(c)
-
-	http.Init(c)
+	initializer.InitializeServer(cfg)
 }

@@ -6,15 +6,26 @@ This is a boilerplate for a Go SweetEscape project implementing Clean Architectu
 
 ```
 📦 project-root
-├── 📂 cmd                 # Application entry point
-├── 📂 config              # Application configuration
-├── 📂 internal            # Core business logic
-│   ├── 📂 domain          # Entities and Repository interface
-│   ├── 📂 usecase         # Use cases (application logic)
-│   ├── 📂 infrastructure  # External components (DB, HTTP, Middleware, Logger, HTTP handler (controller))
-├── 📂 pkg                 # Helper utilities and additional libraries
-├── go.mod                 # Module dependencies
-└── go.sum                 # Dependency checksums
+├── 📂 cmd                       # Application entry point (main package)
+├── 📂 config                    # Application configuration (env, config loader)
+├── 📂 internal                  # Core business logic (not exposed outside the module)
+│   ├── 📂 domain                # Domain layer (enterprise business rules)
+│   │   ├── 📂 entity            # Entity definitions and value objects
+│   │   ├── 📂 repository        # Repository interfaces (data access contracts)
+│   │   └── 📂 usecase           # Use case interfaces (application business rules)
+│   ├── 📂 adapter               # Interface adapters (input/output handlers)
+│   │   └── 📂 http              # HTTP layer (web handlers and controllers)
+│   │       ├── 📂 dto           # Data Transfer Objects for request/response
+│   │       └── 📂 route         # HTTP route definitions
+│   └── 📂 infrastructure        # External systems and frameworks (framework & driver layer)
+│       ├── 📂 database          # Repository implementations (database access)
+│       ├── 📂 initializer       # Component initializers (DB, DI, config)
+│       └── 📂 middleware        # HTTP middleware (logging, auth, etc.)
+├── 📂 pkg                       # Shared utilities and helper functions
+├── 📂 script                    # Custom scripts (migrations, seeders, etc.)
+├── 📂 test                      # Test helpers, mocks, and fixtures
+├── go.mod                       # Go module definition and dependencies
+└── go.sum                       # Dependency checksums for verification
 ```
 
 ## Technologies Used
@@ -25,6 +36,7 @@ This is a boilerplate for a Go SweetEscape project implementing Clean Architectu
 - [Viper (Application Configuration)](https://github.com/spf13/viper)
 - [Zap (Logging)](https://github.com/uber-go/zap)
 - [Air (Live Reload)](https://github.com/air-verse/air)
+- [Wire (Depedency Injection Library)](https://github.com/google/wire)
 
 ## Installation and Running the Application
 
@@ -53,7 +65,19 @@ This is a boilerplate for a Go SweetEscape project implementing Clean Architectu
    go install github.com/air-verse/air@latest
    ```
 
-5. Run the application:
+5. Install wire:
+
+   ```sh
+   go install github.com/google/wire/cmd/wire@latest
+   ```
+
+6. Generate Wire:
+
+   ```sh
+   sh script/wire.sh
+   ```
+
+7. Run the application:
    ```sh
    air
    ```
@@ -63,3 +87,7 @@ This is a boilerplate for a Go SweetEscape project implementing Clean Architectu
 | Method | Endpoint  | Deskripsi        |
 | ------ | --------- | ---------------- |
 | GET    | `/health` | Check API status |
+
+## SCRIPT
+
+1. wire.sh: generate wire_gen.go

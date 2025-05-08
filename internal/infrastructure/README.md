@@ -1,58 +1,90 @@
 # Infrastructure Layer
 
-The `infrastructure` layer is responsible for handling external components such as databases, logging, and third-party integrations. It provides concrete implementations for interfaces defined in the `domain` layer.
+This folder contains implementations of external systems and services used by the application. It serves as the **outermost layer** in Clean Architecture, where frameworks, drivers, and technical details live.
 
-## Responsibilities
-
-- Implement repository interfaces for data persistence.
-- Handle external services (e.g., caching, messaging, third-party APIs).
-- Manage logging, configuration, and environment setup.
-
-## Directory Structure
+## Structure
 
 ```
-📂 infrastructure
-├── 📂 db                # Database connection and repository implementations
-│   ├── db.go           # Database connection setup
-│   ├── user_repo.go    # User repository implementation
-├── 📂 logger            # Logging setup using Zap
-│   ├── logger.go       # Logger configuration
-├── 📂 config            # Application configuration (Viper)
-│   ├── config.go       # Load and manage configurations
-└── ...
+internal/
+└── infrastructure/
+    ├── database/
+    ├── external/
+    ├── initializer/
+    └── middleware/
 ```
 
-## Example Repository Implementation
+### 📁 database
+
+- Contains implementations of repository interfaces defined in the domain layer.
+- Responsible for interacting with data sources (e.g., SQL databases, NoSQL, external APIs).
+- Translates between domain entities and database models.
+
+> This is where you implement interfaces like `UserRepository` using GORM, Ent, etc.
+
+Example:
 
 ```go
-package db
-
-import (
-    "gorm.io/gorm"
-    "myapp/internal/domain/user"
-)
-
-type UserRepositoryImpl struct {
+type UserRepositorImpl struct {
     db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) user.UserRepository {
-    return &UserRepositoryImpl{db: db}
+func ProviderUserRepository(db *gorm.DB) repository.UserRepository {
+	return &UserRepositorImpl{db}
 }
 
-func (r *UserRepositoryImpl) FindByID(id int) (*user.User, error) {
-    var u user.User
-    if err := r.db.First(&u, id).Error; err != nil {
-        return nil, err
-    }
-    return &u, nil
+func (r *UserRepository) FindByID(ctx context.Context, id int) (*entity.User, error) {
+    // DB query logic here
 }
 ```
 
-## Best Practices
+---
 
-- Keep infrastructure concerns separate from business logic.
-- Use dependency injection to make infrastructure components interchangeable.
-- Ensure repositories only interact with database logic and do not contain business rules.
+### 📁 external
 
-This separation ensures that the core business logic remains independent and easy to test.
+- Contains integrations with external services and APIs (e.g., payment gateways, email providers, cloud services).
+- Useful for wrapping third-party SDKs or creating abstractions for external interactions.
+- Helps keep infrastructure-specific logic isolated from domain and use case layers.
+
+---
+
+### 📁 initializer
+
+- Sets up and initializes infrastructure dependencies:
+  - Database connections
+  - Logger (e.g., Zap)
+  - Background workers (e.g., Asynq)
+  - Dependency injection wiring (e.g., with `google/wire`)
+
+---
+
+### 📁 middleware
+
+- Contains custom HTTP middleware for:
+  - Logging
+  - Authentication & Authorization
+  - Request tracing, CORS, panic recovery, etc.
+- These are plugged into the HTTP router (e.g., Gin).
+
+---
+
+## Responsibilities
+
+- Glue between external systems and the core application logic.
+- Provide concrete implementations for interfaces declared in the domain/usecase layers.
+- Handle technical concerns, not business rules.
+
+---
+
+## Guiding Principles
+
+- This layer **depends on the domain**, not vice versa.
+- Keep technical code here—avoid mixing domain logic.
+- Easy to replace (e.g., switch from PostgreSQL to MongoDB) without affecting core business rules.
+
+---
+
+## Related Layers
+
+- Domain interfaces are defined in `internal/domain/repository`.
+- Use cases that consume infrastructure live in `internal/domain/usecase`.
+- HTTP layer (routes, handlers) lives in `internal/adapter/http`.
